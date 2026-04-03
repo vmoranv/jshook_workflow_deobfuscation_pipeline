@@ -1,0 +1,6 @@
+name: deobfuscation-pipeline
+description: JSHook workflow for deobfuscation-pipeline
+author: vmoranv
+tags:
+  - workflow
+  - deobfuscation-pipeline
