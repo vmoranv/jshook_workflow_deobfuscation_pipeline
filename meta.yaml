@@ -1,6 +1,7 @@
 name: deobfuscation-pipeline
 description: JSHook workflow for deobfuscation-pipeline
 author: vmoranv
+source_repo: https://github.com/vmoranv/jshook_workflow_deobfuscation_pipeline
 tags:
   - workflow
   - deobfuscation-pipeline
