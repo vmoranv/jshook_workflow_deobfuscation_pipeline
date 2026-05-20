@@ -1,13 +1,14 @@
 import {
-  createWorkflow,
+  defineWorkflow,
+  sequenceStep,
   type WorkflowExecutionContext,
-  SequenceNodeBuilder,
 } from '@jshookmcp/extension-sdk/workflow';
 
 const workflowId = 'workflow.deobfuscation-pipeline.v1';
 
-export default createWorkflow(workflowId, 'Deobfuscation Pipeline')
-  .description(
+export default defineWorkflow(workflowId, 'Deobfuscation Pipeline', (workflow) =>
+  workflow
+.description(
     'End-to-end deobfuscation pipeline: collects scripts, detects obfuscation type (control flow flattening, string encoding, dead code, packer), runs webcrack unpacking, applies AST transforms (constant folding, dead code removal, control flow recovery), and produces cleaned source with diff report.',
   )
   .tags(['reverse', 'deobfuscation', 'ast', 'webcrack', 'transform', 'obfuscation', 'mission'])
@@ -22,7 +23,7 @@ export default createWorkflow(workflowId, 'Deobfuscation Pipeline')
     const runAstTransforms = Boolean(ctx.getConfig(`${prefix}.runAstTransforms`, true));
     const maxConcurrency = Number(ctx.getConfig(`${prefix}.parallel.maxConcurrency`, 3));
 
-    const root = new SequenceNodeBuilder('deobfuscation-pipeline-root');
+    return sequenceStep('deobfuscation-pipeline-root', (root) => {
 
     // Phase 1: Navigate
     root
@@ -105,7 +106,7 @@ export default createWorkflow(workflowId, 'Deobfuscation Pipeline')
         },
       });
 
-    return root;
+    });
   })
   .onStart((ctx) => {
     ctx.emitMetric('workflow_runs_total', 1, 'counter', { workflowId, mission: 'deobfuscation_pipeline', stage: 'start' });
@@ -116,4 +117,4 @@ export default createWorkflow(workflowId, 'Deobfuscation Pipeline')
   .onError((ctx, error) => {
     ctx.emitMetric('workflow_errors_total', 1, 'counter', { workflowId, mission: 'deobfuscation_pipeline', stage: 'error', error: error.name });
   })
-  .build();
+  );
